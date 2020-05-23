@@ -520,6 +520,21 @@ ALTER TABLE `api_token` ADD `token_api` varchar(40);
 ALTER TABLE `api_token` ADD `patient_id` bigint(20) NOT NULL;
 #EndIf
 
+#IfNotColumnTypeDefault openemr_postcalendar_events pc_eventDate date NULL
+ALTER TABLE `openemr_postcalendar_events` MODIFY `pc_eventDate` date NULL;
+SET @currentSQLMode = (SELECT @@sql_mode);
+SET sql_mode = '';
+UPDATE `openemr_postcalendar_events` SET `pc_eventDate` = NULL WHERE `pc_eventDate` = '0000-00-00';
+SET sql_mode = @currentSQLMode;
+#EndIf
+
+#IfNotColumnTypeDefault openemr_postcalendar_events pc_endDate date NULL
+ALTER TABLE `openemr_postcalendar_events` MODIFY `pc_endDate` date NULL;
+SET @currentSQLMode = (SELECT @@sql_mode);
+SET sql_mode = '';
+UPDATE `openemr_postcalendar_events` SET `pc_endDate` = NULL WHERE `pc_endDate` = '0000-00-00';
+SET sql_mode = @currentSQLMode;
+
 #IfNotTable api_forced_id
 CREATE TABLE `api_forced_id` (
     `pid` bigint(20) NOT NULL,
