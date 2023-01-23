@@ -7051,6 +7051,7 @@ RestConfig::$ROUTE_MAP = array(
      *  )
      */
     "POST /api/prescription" => function () {
+        RestConfig::authorization_check("patients", "med");
         $data = (array) (json_decode(file_get_contents("php://input")));
         $return = (new PrescriptionRestController())->post($data);
         RestConfig::apiLog($return, $data);
@@ -7150,6 +7151,7 @@ RestConfig::$ROUTE_MAP = array(
      *  )
      */
     "DELETE /api/prescription/:id" => function ($id) {
+        RestConfig::authorization_check("patients", "med");
         $return = (new PrescriptionRestController())->delete($id);
         RestConfig::apiLog($return);
         return $return;

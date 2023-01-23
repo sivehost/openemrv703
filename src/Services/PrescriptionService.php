@@ -296,7 +296,7 @@ class PrescriptionService extends BaseService
 
     public function delete($id)
     {
-        QueryUtils::sqlStatementThrowException("DELETE FROM prescriptions WHERE id = ?", $id);
+        QueryUtils::sqlStatementThrowException("DELETE FROM prescriptions WHERE id = ?", array($id));
         return ['message' => 'record deleted'];
     }
 }
