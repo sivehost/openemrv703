@@ -8,10 +8,13 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2017-2021 Rod Roark <rod@sunsetsystems.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ *
+ * add ability to output results as a csv file. Ruth Moulton
  */
 
 require_once("../globals.php");
-require_once("$srcdir/patient.inc.php");
+require_once("$srcdir/patient.inc"); // for instances of v7 p2
+/*require_once("$srcdir/patient.inc.php"); */
 require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
@@ -44,7 +47,7 @@ function displayRow($row, $pid = '')
         $options = "<option value=''></option>" .
         "<option value='U'>" . xlt('Mark as Unique') . "</option>" .
         "<option value='R'>" . xlt('Recompute Score') . "</option>";
-        if (!$firsttime) {
+        if (!$firsttime && empty($_POST['form_csvexport'] ) ) { //don't put the next line into the csv file
             echo " <tr bgcolor='#dddddd'><td class='detail' colspan='12'>&nbsp;</td></tr>\n";
         }
     }
@@ -70,7 +73,23 @@ function displayRow($row, $pid = '')
             $facname = $facrow['name'];
         }
     }
-    ?>
+
+//ruth
+      if ($_POST['form_csvexport']) {
+            echo csvEscape(text( $myscore)) . ',';
+            echo csvEscape($row['pid']) . ',';
+            echo csvEscape($row['id']) . ',';
+            echo csvEscape(text( $ptname )) . ',';
+            // format dates by users preference
+            echo csvEscape(oeFormatShortDate(substr($row['DOB'], 0, 10))) . ',';
+            echo csvEscape($row['ss']) . ',';
+            echo csvEscape($row['email']) . ',';
+            echo csvEscape(text($phones)) . ',';
+            echo csvEscape(oeFormatShortDate($row['regdate'])) . ',';
+            echo csvEscape(text($facname)) . ',';
+             echo csvEscape($row['street']) . "\n";
+        } else {
+            ?>
  <tr bgcolor='<?php echo $bgcolor; ?>'>
   <td class="detail" bgcolor="#dddddd">
    <select onchange='selchange(this, <?php echo attr_js($pid); ?>, <?php echo attr_js($row['pid']); ?>)' style='width:100%'>
@@ -113,7 +132,8 @@ function displayRow($row, $pid = '')
   </td>
  </tr>
     <?php
-}
+        }
+} // function displayRow
 
 if (!empty($_POST)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -127,7 +147,18 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 }
 
 $scorecalc = getDupScoreSQL();
-?>
+
+
+// In the case of CSV export only, a download will be forced.
+if (!empty($_POST['form_csvexport'])) {
+    header("Pragma: public");
+    header("Expires: 0");
+    header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+    header("Content-Type: application/force-download");
+    header("Content-Disposition: attachment; filename=duplicate_patients.csv");
+    header("Content-Description: File Transfer");
+} else { ?>
+
 <html>
 <head>
 <title><?php echo xlt('Duplicate Patient Management') ?></title>
@@ -202,6 +233,11 @@ function selchange(sel, toppid, rowpid) {
    <input type='submit' name='form_refresh' value="<?php echo xla('Refresh') ?>">
    &nbsp;
    <input type='button' value='<?php echo xla('Print'); ?>' onclick='window.print()' />
+    &nbsp;
+    <input type='hidden' name='form_csvexport' id='form_csvexport' value=''/>
+
+    <a href='#' class='btn btn-secondary btn-transmit' onclick='$("#form_csvexport").attr("value","true"); $("#theform").submit();'>
+              <?php echo xlt('Export to CSV'); ?>
   </td>
  </tr>
  <tr>
@@ -209,6 +245,24 @@ function selchange(sel, toppid, rowpid) {
   </td>
  </tr>
 </table>
+<?php } //end of csv setup ?>
+<?php
+// either put out headings to the screen or to the csv file
+if ( !empty($_POST['form_csvexport'])) {
+
+        // CSV headers:
+        echo csvEscape(xl('Score')) . ',';
+        echo csvEscape(xl('PID')) . ',';
+        echo csvEscape(xl('ID')) . ',';
+        echo csvEscape(xl('Name')) . ',';
+        echo csvEscape(xl('DOB')) . ',';
+        echo csvEscape(xl('SSN')) . ',';
+        echo csvEscape(xl('Email')) . ',';
+        echo csvEscape(xl('Telephone')) . ',';
+        echo csvEscape(xl('Registered')) . ',';
+        echo csvEscape(xl('Home Facility')) . ',';
+        echo csvEscape(xl('Address')) . "\n";
+    }  else {  //ruth ?>
 
 <table id='mymaintable' class='mymaintable'>
  <thead>
@@ -254,6 +308,7 @@ function selchange(sel, toppid, rowpid) {
  <tbody>
 <?php
 
+    }
 $form_action = $_POST['form_action'] ?? '';
 
 if ($form_action == 'U') {
@@ -279,6 +334,9 @@ while ($row1 = sqlFetchArray($res1)) {
         displayRow($row2, $row1['pid']);
     }
 }
+
+if (empty($_POST['form_refresh'])) {
+
 ?>
 </tbody>
 </table>
@@ -297,3 +355,6 @@ while ($row1 = sqlFetchArray($res1)) {
 
 </body>
 </html>
+<?php
+}  // end of not csv
+?>
