@@ -14,7 +14,7 @@
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc"); // for instances of v7 p2
-/*require_once("$srcdir/patient.inc.php"); */
+/*require_once("$srcdir/patient.inc.php"); */ //for current development code
 require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
@@ -73,9 +73,8 @@ function displayRow($row, $pid = '')
             $facname = $facrow['name'];
         }
     }
-
-//ruth
-      if ($_POST['form_csvexport']) {
+/* output the line to the csv file if requested */
+      if (!empty($_POST['form_csvexport']) ) {
             echo csvEscape(text( $myscore)) . ',';
             echo csvEscape($row['pid']) . ',';
             echo csvEscape($row['id']) . ',';
@@ -149,7 +148,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 $scorecalc = getDupScoreSQL();
 
 
-// In the case of CSV export only, a download will be forced.
+// In the case of CSV export only, a download will be forced. set up parameters
 if (!empty($_POST['form_csvexport'])) {
     header("Pragma: public");
     header("Expires: 0");
@@ -222,22 +221,30 @@ function selchange(sel, toppid, rowpid) {
 <body style='margin: 2em; background-color: #dddddd' >
 <center>
 
+
+
 <h2><?php echo xlt('Duplicate Patient Management')?></h2>
 
-<form method='post' action='manage_dup_patients.php'>
+<form name='theform' id='theform' method='post' action='manage_dup_patients.php'>
+
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <table border='0' cellpadding='3'>
  <tr>
   <td align='center'>
-   <input type='submit' name='form_refresh' value="<?php echo xla('Refresh') ?>">
-   &nbsp;
-   <input type='button' value='<?php echo xla('Print'); ?>' onclick='window.print()' />
-    &nbsp;
-    <input type='hidden' name='form_csvexport' id='form_csvexport' value=''/>
 
-    <a href='#' class='btn btn-secondary btn-transmit' onclick='$("#form_csvexport").attr("value","true"); $("#theform").submit();'>
+   <input type='submit' name='form_refresh' value="<?php echo xla('Refresh') ?>"  >
+   &nbsp;
+
+    <input type='button' value='<?php echo xla('Print'); ?>' onclick='window.print()' />
+    &nbsp;
+
+ <input type='hidden' name='form_csvexport' id='form_csvexport' value=''/>
+
+    <a href='#' class='btn btn-secondary btn-transmit' onclick='$("#form_csvexport").attr("value","true"); $("#theform").submit();' >
               <?php echo xlt('Export to CSV'); ?>
+    </a>
+
   </td>
  </tr>
  <tr>
@@ -245,11 +252,10 @@ function selchange(sel, toppid, rowpid) {
   </td>
  </tr>
 </table>
-<?php } //end of csv setup ?>
-<?php
+<?php } //end of csv setup
+
 // either put out headings to the screen or to the csv file
 if ( !empty($_POST['form_csvexport'])) {
-
         // CSV headers:
         echo csvEscape(xl('Score')) . ',';
         echo csvEscape(xl('PID')) . ',';
@@ -262,7 +268,8 @@ if ( !empty($_POST['form_csvexport'])) {
         echo csvEscape(xl('Registered')) . ',';
         echo csvEscape(xl('Home Facility')) . ',';
         echo csvEscape(xl('Address')) . "\n";
-    }  else {  //ruth ?>
+    }  else {
+        ?>
 
 <table id='mymaintable' class='mymaintable'>
  <thead>
@@ -335,7 +342,7 @@ while ($row1 = sqlFetchArray($res1)) {
     }
 }
 
-if (empty($_POST['form_refresh'])) {
+if (empty($_POST['form_csvexport'])) {
 
 ?>
 </tbody>
