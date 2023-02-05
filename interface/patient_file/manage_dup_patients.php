@@ -233,6 +233,8 @@ function selchange(sel, toppid, rowpid) {
  <tr>
   <td align='center'>
 
+  <input type='hidden' name='form_refresh' id='form_refresh' value=''/>
+
    <input type='submit' name='form_refresh' value="<?php echo xla('Refresh') ?>"  >
    &nbsp;
 
