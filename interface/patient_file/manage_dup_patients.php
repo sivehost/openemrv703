@@ -235,13 +235,14 @@ function selchange(sel, toppid, rowpid) {
 
   <input type='hidden' name='form_refresh' id='form_refresh' value=''/>
 
-   <input type='submit' name='form_refresh' value="<?php echo xla('Refresh') ?>"  >
-   &nbsp;
-
-    <input type='button' value='<?php echo xla('Print'); ?>' onclick='window.print()' />
+   <input type='button' value='<?php echo xla('Print'); ?>' onclick='window.print()' />
     &nbsp;
 
- <input type='hidden' name='form_csvexport' id='form_csvexport' value=''/>
+    <a href='#' class='btn btn-secondary btn-save' onclick='$("#form_csvexport").val(""); $("#form_refresh").attr("value","true"); $("#theform").submit();'>
+                        <?php echo xlt('Refresh'); ?>
+
+
+    <input type='hidden' name='form_csvexport' id='form_csvexport' value=''/>
 
     <a href='#' class='btn btn-secondary btn-transmit' onclick='$("#form_csvexport").attr("value","true"); $("#theform").submit();' >
               <?php echo xlt('Export to CSV'); ?>
