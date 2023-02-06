@@ -51,7 +51,6 @@ function displayRow($row, $pid = '')
             echo " <tr bgcolor='#dddddd'><td class='detail' colspan='12'>&nbsp;</td></tr>\n";
         }
     }
-
     $firsttime = false;
     $ptname = $row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname'];
     $phones = array();
@@ -73,7 +72,7 @@ function displayRow($row, $pid = '')
             $facname = $facrow['name'];
         }
     }
-/* output the line to the csv file if requested */
+/* output the line to the csv file if requested, otherwise display */
       if (!empty($_POST['form_csvexport']) ) {
             echo csvEscape(text( $myscore)) . ',';
             echo csvEscape($row['pid']) . ',';
@@ -131,7 +130,7 @@ function displayRow($row, $pid = '')
   </td>
  </tr>
     <?php
-        }
+        } //else display
 } // function displayRow
 
 if (!empty($_POST)) {
@@ -146,7 +145,6 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 }
 
 $scorecalc = getDupScoreSQL();
-
 
 // In the case of CSV export only, a download will be forced. set up parameters
 if (!empty($_POST['form_csvexport'])) {
@@ -210,44 +208,35 @@ function selchange(sel, toppid, rowpid) {
     f.form_action.value = sel.value;
     f.form_toppid.value = toppid;
     f.form_rowpid.value = rowpid;
+    f.form_csvexport.value = "";// submit without putting out a csv file
     f.submit();
   }
 }
-
 </script>
 
 </head>
 
 <body style='margin: 2em; background-color: #dddddd' >
 <center>
-
-
-
 <h2><?php echo xlt('Duplicate Patient Management')?></h2>
-
+<!-- give the form a name rm -->
 <form name='theform' id='theform' method='post' action='manage_dup_patients.php'>
-
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <table border='0' cellpadding='3'>
  <tr>
   <td align='center'>
-
   <input type='hidden' name='form_refresh' id='form_refresh' value=''/>
-
-   <input type='button' value='<?php echo xla('Print'); ?>' onclick='window.print()' />
-    &nbsp;
-
+  <!-- refresh without generating csv file -->
     <a href='#' class='btn btn-secondary btn-save' onclick='$("#form_csvexport").val(""); $("#form_refresh").attr("value","true"); $("#theform").submit();'>
                         <?php echo xlt('Refresh'); ?>
-
-
-    <input type='hidden' name='form_csvexport' id='form_csvexport' value=''/>
-
+   </a>
     <a href='#' class='btn btn-secondary btn-transmit' onclick='$("#form_csvexport").attr("value","true"); $("#theform").submit();' >
               <?php echo xlt('Export to CSV'); ?>
     </a>
-
+    &nbsp;
+    <input type='button' value='<?php echo xla('Print'); ?>' onclick='window.print()' />
+    &nbsp;
   </td>
  </tr>
  <tr>
@@ -350,6 +339,7 @@ if (empty($_POST['form_csvexport'])) {
 ?>
 </tbody>
 </table>
+<input type='hidden' name='form_csvexport' id='form_csvexport' value=''/>
 <input type='hidden' name='form_action' value='' />
 <input type='hidden' name='form_toppid' value='0' />
 <input type='hidden' name='form_rowpid' value='0' />
