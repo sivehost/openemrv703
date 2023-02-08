@@ -9,7 +9,7 @@
  * @copyright Copyright (c) 2017-2021 Rod Roark <rod@sunsetsystems.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  *
- * add ability to output results as a csv file. Ruth Moulton
+ * add ability to output results as a csv file. version 1.0 Ruth Moulton
  */
 
 require_once("../globals.php");
@@ -48,9 +48,9 @@ function displayRow($row, $pid = '')
         $options = "<option value=''></option>" .
         "<option value='U'>" . xlt('Mark as Unique') . "</option>" .
         "<option value='R'>" . xlt('Recompute Score') . "</option>";
-        if (!$firsttime){
+        if (!$firsttime) {
             $group++;
-            if( empty($_POST['form_csvexport'] ) ) { //don't put the next line into the csv file
+            if (empty($_POST['form_csvexport'])) { //don't put the next line into the csv file
                 echo " <tr bgcolor='#dddddd'><td class='detail' colspan='12'>&nbsp;</td></tr>\n";
             }
         }
@@ -78,12 +78,12 @@ function displayRow($row, $pid = '')
         }
     }
 /* output the line to the csv file if requested, otherwise display */
-      if (!empty($_POST['form_csvexport']) ) {
+    if (!empty($_POST['form_csvexport'])) {
             echo csvEscape(text($group)) . ',';
-            echo csvEscape(text( $myscore)) . ',';
+            echo csvEscape(text($myscore)) . ',';
             echo csvEscape($row['pid']) . ',';
             echo csvEscape($row['id']) . ',';
-            echo csvEscape(text( $ptname )) . ',';
+            echo csvEscape(text($ptname)) . ',';
             // format dates by users preference
             echo csvEscape(oeFormatShortDate(substr($row['DOB'], 0, 10))) . ',';
             echo csvEscape($row['ss']) . ',';
@@ -92,51 +92,51 @@ function displayRow($row, $pid = '')
             echo csvEscape(oeFormatShortDate($row['regdate'])) . ',';
             echo csvEscape(text($facname)) . ',';
              echo csvEscape($row['street']) . "\n";
-        } else {
-            ?>
+    } else {
+        ?>
  <tr bgcolor='<?php echo $bgcolor; ?>'>
   <td class="detail" bgcolor="#dddddd">
    <select onchange='selchange(this, <?php echo attr_js($pid); ?>, <?php echo attr_js($row['pid']); ?>)' style='width:100%'>
-    <?php echo $options; // this is html and already escaped as required ?>
+        <?php echo $options; // this is html and already escaped as required ?>
    </select>
   </td>
   <td class="detail" align="right">
-    <?php echo text($myscore); ?>
+        <?php echo text($myscore); ?>
   </td>
   <td class="detail" align="right" onclick="openNewTopWindow(<?php echo attr_js($row['pid']); ?>)"
     title="<?php echo xla('Click to open in a new window or tab'); ?>" style="color:blue;cursor:pointer">
-    <?php echo text($row['pid']); ?>
+        <?php echo text($row['pid']); ?>
   </td>
   <td class="detail">
-    <?php echo text($row['pubpid']); ?>
+        <?php echo text($row['pubpid']); ?>
   </td>
   <td class="detail">
-    <?php echo text($ptname); ?>
+        <?php echo text($ptname); ?>
   </td>
   <td class="detail">
-    <?php echo text(oeFormatShortDate($row['DOB'])); ?>
+        <?php echo text(oeFormatShortDate($row['DOB'])); ?>
   </td>
   <td class="detail">
-    <?php echo text($row['ss']); ?>
+        <?php echo text($row['ss']); ?>
   </td>
   <td class="detail">
-    <?php echo text($row['email']); ?>
+        <?php echo text($row['email']); ?>
   </td>
   <td class="detail">
-    <?php echo text($phones); ?>
+        <?php echo text($phones); ?>
   </td>
   <td class="detail">
-    <?php echo text(oeFormatShortDate($row['regdate'])); ?>
+        <?php echo text(oeFormatShortDate($row['regdate'])); ?>
   </td>
   <td class="detail">
-    <?php echo text($facname); ?>
+       <?php echo text($facname); ?>
   </td>
   <td class="detail">
-    <?php echo text($row['street']); ?>
+       <?php echo text($row['street']); ?>
   </td>
  </tr>
-    <?php
-        } //else display
+       <?php
+    } //else display
 } // function displayRow
 
 if (!empty($_POST)) {
@@ -164,7 +164,6 @@ if (!empty($_POST['form_csvexport'])) {
     header("Content-Disposition: attachment; filename=" . $filename . '"');
     header("Content-Description: File Transfer");
 } else { ?>
-
 <html>
 <head>
 <title><?php echo xlt('Duplicate Patient Management') ?></title>
@@ -256,7 +255,7 @@ function selchange(sel, toppid, rowpid) {
 <?php } //end of csv setup
 
 // either put out headings to the screen or to the csv file
-if ( !empty($_POST['form_csvexport'])) {
+if (!empty($_POST['form_csvexport'])) {
         // CSV headers:
         echo csvEscape(xl('Group')) . ',';
         echo csvEscape(xl('Score')) . ',';
@@ -270,8 +269,8 @@ if ( !empty($_POST['form_csvexport'])) {
         echo csvEscape(xl('Registered')) . ',';
         echo csvEscape(xl('Home Facility')) . ',';
         echo csvEscape(xl('Address')) . "\n";
-    }  else {
-        ?>
+}  else {
+    ?>
 
 <table id='mymaintable' class='mymaintable'>
  <thead>
@@ -315,9 +314,8 @@ if ( !empty($_POST['form_csvexport'])) {
   </tr>
  </thead>
  <tbody>
-<?php
-
-    }
+    <?php
+}
 $form_action = $_POST['form_action'] ?? '';
 
 if ($form_action == 'U') {
@@ -345,8 +343,7 @@ while ($row1 = sqlFetchArray($res1)) {
 }
 
 if (empty($_POST['form_csvexport'])) {
-
-?>
+    ?>
 </tbody>
 </table>
 <input type='hidden' name='form_csvexport' id='form_csvexport' value=''/>
@@ -365,6 +362,6 @@ if (empty($_POST['form_csvexport'])) {
 
 </body>
 </html>
-<?php
+    <?php
 }  // end of not csv
 ?>
