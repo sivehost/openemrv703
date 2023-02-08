@@ -129,13 +129,13 @@ function displayRow($row, $pid = '')
         <?php echo text(oeFormatShortDate($row['regdate'])); ?>
   </td>
   <td class="detail">
-       <?php echo text($facname); ?>
+        <?php echo text($facname); ?>
   </td>
   <td class="detail">
-       <?php echo text($row['street']); ?>
+        <?php echo text($row['street']); ?>
   </td>
  </tr>
-       <?php
+        <?php
     } //else display
 } // function displayRow
 
@@ -269,7 +269,7 @@ if (!empty($_POST['form_csvexport'])) {
         echo csvEscape(xl('Registered')) . ',';
         echo csvEscape(xl('Home Facility')) . ',';
         echo csvEscape(xl('Address')) . "\n";
-}  else {
+} else {
     ?>
 
 <table id='mymaintable' class='mymaintable'>
