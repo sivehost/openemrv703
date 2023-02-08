@@ -24,10 +24,11 @@ use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
 
 $firsttime = true;
+$group = 1;
 
 function displayRow($row, $pid = '')
 {
-    global $firsttime;
+    global $firsttime, $group ;
 
     $bgcolor = '#ffdddd';
     $myscore = '';
@@ -47,11 +48,15 @@ function displayRow($row, $pid = '')
         $options = "<option value=''></option>" .
         "<option value='U'>" . xlt('Mark as Unique') . "</option>" .
         "<option value='R'>" . xlt('Recompute Score') . "</option>";
-        if (!$firsttime && empty($_POST['form_csvexport'] ) ) { //don't put the next line into the csv file
-            echo " <tr bgcolor='#dddddd'><td class='detail' colspan='12'>&nbsp;</td></tr>\n";
+        if (!$firsttime){
+            $group++;
+            if( empty($_POST['form_csvexport'] ) ) { //don't put the next line into the csv file
+                echo " <tr bgcolor='#dddddd'><td class='detail' colspan='12'>&nbsp;</td></tr>\n";
+            }
         }
     }
     $firsttime = false;
+
     $ptname = $row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname'];
     $phones = array();
     if (trim($row['phone_home'])) {
@@ -74,6 +79,7 @@ function displayRow($row, $pid = '')
     }
 /* output the line to the csv file if requested, otherwise display */
       if (!empty($_POST['form_csvexport']) ) {
+            echo csvEscape(text($group)) . ',';
             echo csvEscape(text( $myscore)) . ',';
             echo csvEscape($row['pid']) . ',';
             echo csvEscape($row['id']) . ',';
@@ -152,7 +158,10 @@ if (!empty($_POST['form_csvexport'])) {
     header("Expires: 0");
     header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
     header("Content-Type: application/force-download");
-    header("Content-Disposition: attachment; filename=duplicate_patients.csv");
+    $today = getdate()['year']  . getdate()['mon'] . getdate()['mday'] ;
+    $today = text($today);
+    $filename = "duplicate_patients" . "_" . $GLOBALS['openemr_name'] . "_" .  $today . ".csv" ;
+    header("Content-Disposition: attachment; filename=" . $filename . '"');
     header("Content-Description: File Transfer");
 } else { ?>
 
@@ -249,6 +258,7 @@ function selchange(sel, toppid, rowpid) {
 // either put out headings to the screen or to the csv file
 if ( !empty($_POST['form_csvexport'])) {
         // CSV headers:
+        echo csvEscape(xl('Group')) . ',';
         echo csvEscape(xl('Score')) . ',';
         echo csvEscape(xl('PID')) . ',';
         echo csvEscape(xl('ID')) . ',';
