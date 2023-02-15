@@ -139,6 +139,18 @@ function displayRow($row, $pid = '')
     } //else display
 } // function displayRow
 
+/* debug */
+    error_log (!empty($_POST)? "post not empty:"  : "post empty" );
+  /*  if (!empty($_POST)) {
+         error_log("post contains " . count($_POST)  );
+         $i = 0;
+         foreach($_POST as $i => $i_value){
+             error_log( $i . " " . $i_value);
+         }
+        }
+        */
+/* debug */
+
 if (!empty($_POST)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
@@ -154,6 +166,7 @@ $scorecalc = getDupScoreSQL();
 
 // In the case of CSV export only, a download will be forced. set up parameters
 if (!empty($_POST['form_csvexport'])) {
+   // error_log("set up csv parameters");
     header("Pragma: public");
     header("Expires: 0");
     header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
@@ -163,6 +176,7 @@ if (!empty($_POST['form_csvexport'])) {
     $filename = "duplicate_patients" . "_" . $GLOBALS['openemr_name'] . "_" .  $today . ".csv" ;
     header("Content-Disposition: attachment; filename=" . $filename . '"');
     header("Content-Description: File Transfer");
+
 } else { ?>
 <html>
 <head>
@@ -196,7 +210,7 @@ $(function () {
 });
 
 function openNewTopWindow(pid) {
- document.fnew.patientID.value = pid;
+   document.fnew.patientID.value = pid;
  top.restoreSession();
  document.fnew.submit();
 }
@@ -220,6 +234,54 @@ function selchange(sel, toppid, rowpid) {
     f.submit();
   }
 }
+
+function requestrefresh() {
+    var f = document.forms[0];
+    let data =new FormData();
+    for (i = 0; i<f.length; i++){
+        data.append(f[i].name, f[i].value);
+    }
+        fetch('#',
+             {method: "POST",
+                body: data
+              })
+            .then (response => response.text())
+            .then ( (response) =>
+                {
+                    document.body.innerHTML = response;
+                } );
+ } // requestrefresh()
+
+ function requestcsv() {
+    var f = document.forms[0];
+    let data =new FormData();
+    for (i = 0; i<f.length; i++){
+        data.append(f[i].name, f[i].value);
+    }
+        fetch('#',
+             {method: "POST",
+                body: data
+              })
+         .then (response => response.blob())
+         .then(blob => {
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            // a.download = 'document.csv';
+            a.download =
+         <?php
+          $today = getdate()['year']  . getdate()['mon'] . getdate()['mday'] ;
+            $today = text($today);
+            echo ("'duplicate_patients" . "_" . $GLOBALS['openemr_name'] . "_" .  $today . ".csv' ;" );
+            ?>
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            });
+                ;
+ } // requestcsv()
+
 </script>
 
 </head>
@@ -235,11 +297,12 @@ function selchange(sel, toppid, rowpid) {
  <tr>
   <td align='center'>
   <input type='hidden' name='form_refresh' id='form_refresh' value=''/>
-  <!-- refresh without generating csv file -->
-    <a href='#' class='btn btn-secondary btn-save' onclick='$("#form_csvexport").val(""); $("#form_refresh").attr("value","true"); $("#theform").submit();'>
+
+    <a href='#' class='btn btn-secondary btn-save' type="button" onclick='$("#form_csvexport").val(""); $("#form_refresh").attr("value","true"); requestrefresh(); '>
                         <?php echo xlt('Refresh'); ?>
    </a>
-    <a href='#' class='btn btn-secondary btn-transmit' onclick='$("#form_csvexport").attr("value","true"); $("#theform").submit();' >
+<!--    <a href='#' class='btn btn-secondary btn-transmit' onclick='$("#form_csvexport").attr("value","true"); $("#theform").submit();' > -->
+    <a href='#' class='btn btn-secondary btn-transmit' onclick='$("#form_csvexport").attr("value","true"); requestcsv(); ' >
               <?php echo xlt('Export to CSV'); ?>
     </a>
     &nbsp;
@@ -252,11 +315,12 @@ function selchange(sel, toppid, rowpid) {
   </td>
  </tr>
 </table>
-<?php } //end of csv setup
+<?php } //end of html without csv setup
 
 // either put out headings to the screen or to the csv file
 if (!empty($_POST['form_csvexport'])) {
         // CSV headers:
+  //  error_log("output headers");
         echo csvEscape(xl('Group')) . ',';
         echo csvEscape(xl('Score')) . ',';
         echo csvEscape(xl('PID')) . ',';
