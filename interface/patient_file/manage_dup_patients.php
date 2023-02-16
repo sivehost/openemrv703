@@ -140,7 +140,7 @@ function displayRow($row, $pid = '')
 } // function displayRow
 
 /* debug */
-    error_log (!empty($_POST)? "post not empty:"  : "post empty" );
+  /*  error_log (!empty($_POST)? "post not empty:"  : "post empty" );
   /*  if (!empty($_POST)) {
          error_log("post contains " . count($_POST)  );
          $i = 0;
@@ -241,45 +241,46 @@ function requestrefresh() {
     for (i = 0; i<f.length; i++){
         data.append(f[i].name, f[i].value);
     }
-        fetch('#',
-             {method: "POST",
-                body: data
-              })
-            .then (response => response.text())
-            .then ( (response) =>
-                {
-                    document.body.innerHTML = response;
-                } );
+    fetch('#',
+        {method: "POST",
+            body: data
+        })
+       .then (response => response.text())
+       .then ( (response) =>
+            {
+                document.body.innerHTML = response;
+            });
  } // requestrefresh()
 
- function requestcsv() {
+function requestcsv() {
     var f = document.forms[0];
     let data =new FormData();
     for (i = 0; i<f.length; i++){
         data.append(f[i].name, f[i].value);
     }
-        fetch('#',
-             {method: "POST",
-                body: data
-              })
-         .then (response => response.blob())
-         .then(blob => {
+    fetch('#',
+        {method: "POST",
+            body: data
+        })
+
+       .then (response => response.blob())
+       .then(blob => {
+
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.style.display = 'none';
             a.href = url;
-            // a.download = 'document.csv';
+            // generate the file name
             a.download =
-         <?php
-          $today = getdate()['year']  . getdate()['mon'] . getdate()['mday'] ;
-            $today = text($today);
-            echo ("'duplicate_patients" . "_" . $GLOBALS['openemr_name'] . "_" .  $today . ".csv' ;" );
+            <?php
+                $today = getdate()['year']  . getdate()['mon'] . getdate()['mday'] ;
+                $today = text($today);
+                echo ("'duplicate_patients" . "_" . $GLOBALS['openemr_name'] . "_" .  $today . ".csv' ;" );
             ?>
             document.body.appendChild(a);
             a.click();
             window.URL.revokeObjectURL(url);
-            });
-                ;
+      });
  } // requestcsv()
 
 </script>
