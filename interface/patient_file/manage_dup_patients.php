@@ -176,7 +176,6 @@ if (!empty($_POST['form_csvexport'])) {
     $filename = "duplicate_patients" . "_" . $GLOBALS['openemr_name'] . "_" .  $today . ".csv" ;
     header("Content-Disposition: attachment; filename=" . $filename . '"');
     header("Content-Description: File Transfer");
-
 } else { ?>
 <html>
 <head>
