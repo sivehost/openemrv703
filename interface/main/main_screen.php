@@ -425,6 +425,10 @@ if ((!AuthUtils::useActiveDirectory()) && ($GLOBALS['password_expiration_days'] 
         $is_expired = true;
     }
 }
+//initialise - to avoid php warnings that these variables do not exist, from lines 513 etc
+$frame2url = null;
+$frame2target = null;
+$frame2label = null;
 
 if ($is_expired) {
     //display the php file containing the password expiration message.
