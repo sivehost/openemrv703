@@ -230,7 +230,8 @@ function selchange(sel, toppid, rowpid) {
     f.form_toppid.value = toppid;
     f.form_rowpid.value = rowpid;
     f.form_csvexport.value = "";// submit without putting out a csv file
-    f.submit();
+   /* f.submit(); */
+   requestrefresh();
   }
 }
 
