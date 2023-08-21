@@ -54,17 +54,17 @@ class PrescriptionService extends BaseService
     {
         $sqlBindArray = array();
 
-        if (isset($search['patient.uuid'])) {
+        if (isset($search['puuid'])) {
             $isValidPatient = $this->patientValidator->validateId(
                 'uuid',
                 self::PATIENT_TABLE,
-                $search['patient.uuid'],
+                $search['puuid'],
                 true
             );
             if ($isValidPatient != true) {
                 return $isValidPatient;
             }
-            $search['patient.uuid'] = UuidRegistry::uuidToBytes($search['patient.uuid']);
+            $search['puuid'] = UuidRegistry::uuidToBytes($search['puuid']);
         }
 
         if (!empty($puuidBind)) {
@@ -100,6 +100,9 @@ class PrescriptionService extends BaseService
                 ,combined_prescriptions.note
                 ,combined_prescriptions.status
                 ,combined_prescriptions.drug_dosage_instructions
+                ,combined_prescriptions.indication
+                ,combined_prescriptions.substitute
+                ,combined_prescriptions.quantity
                 ,patient.puuid
                 ,encounter.euuid
                 ,practitioner.pruuid
@@ -124,6 +127,9 @@ class PrescriptionService extends BaseService
                             ,prescriptions.drug
                             ,prescriptions.active
                             ,prescriptions.end_date
+                            ,prescriptions.indication
+                            ,prescriptions.substitute
+                            ,prescriptions.quantity
                             ,'order' AS intent
                             ,'Order' AS intent_title
                             ,'community' AS category
@@ -135,7 +141,7 @@ class PrescriptionService extends BaseService
                             ,date_added
                             ,COALESCE(prescriptions.unit,drugs.unit) AS unit
                             ,prescriptions.`interval`
-                            ,COALESCE(prescriptions.`route`,drugs.`route`) AS 'route'
+                            ,prescriptions.`route` AS 'route'
                             ,prescriptions.`note`
                             ,patient_id
                             ,encounter
@@ -153,50 +159,6 @@ class PrescriptionService extends BaseService
                     LEFT JOIN
                         -- @brady.miller so drug_id in my databases appears to always be 0 so I'm not sure I can grab anything here.. I know WENO doesn't populate this value...
                         drugs ON prescriptions.drug_id = drugs.drug_id
-                    UNION
-                    SELECT
-                        lists.uuid
-                        ,'lists' AS 'source_table'
-                        ,lists.title AS drug
-                        ,activity AS active
-                        ,lists.enddate AS end_date
-                        ,lists_medication.request_intent AS intent
-                        ,lists_medication.request_intent_title AS intent_title
-                        ,lists_medication.usage_category AS category
-                        ,lists_medication.usage_category_title AS category_title
-                        ,lists.diagnosis AS rxnorm_drugcode
-                        ,`date` AS date_added
-                        ,NULL as unit
-                        ,NULL as 'interval'
-                        ,NULL as `route`
-                        ,lists.comments as 'note'
-                        ,pid AS patient_id
-                        ,issues_encounter.issues_encounter_encounter as encounter
-                        ,users.id AS provider_id
-                        ,NULL as drug_uuid
-                        ,lists_medication.drug_dosage_instructions
-                        ,CASE 
-                                WHEN lists.enddate IS NOT NULL AND lists.activity = 1 THEN 'completed'
-                                WHEN lists.activity = 1 THEN 'active'
-                                ELSE 'stopped'
-                        END as 'status'
-                    FROM
-                        lists
-                    LEFT JOIN 
-                            users ON users.username = lists.user
-                    LEFT JOIN
-                        lists_medication ON lists_medication.list_id = lists.id
-                    LEFT JOIN
-                    (
-                       select 
-                              pid AS issues_encounter_pid
-                            , list_id AS issues_encounter_list_id
-                            -- lists have a 0..* relationship with issue_encounters which is a problem as FHIR treats medications as a 0.1
-                            -- we take the very first encounter that the issue was tied to.
-                            , min(encounter) AS issues_encounter_encounter FROM issue_encounter GROUP BY pid,list_id
-                    ) issues_encounter ON lists.pid = issues_encounter.issues_encounter_pid AND lists.id = issues_encounter.issues_encounter_list_id
-                    WHERE
-                        type = 'medication'
                 ) combined_prescriptions
                 LEFT JOIN
                 (
@@ -296,5 +258,45 @@ class PrescriptionService extends BaseService
     public function getOne($uuid, $puuidBind = null)
     {
         return $this->getAll(['_id' => $uuid], $puuidBind);
+    }
+
+    /**
+     * Inserts a new prescription record.
+     *
+     * @param $data The prescription fields (array) to insert.
+     * @return ProcessingResult which contains validation messages, internal error messages, and the data
+     * payload.
+     */
+    public function insert($data)
+    {
+        $processingResult = new ProcessingResult();
+
+        $data['uuid'] = UuidRegistry::getRegistryForTable(self::PRESCRIPTION_TABLE)->createUuid();
+
+        $query = $this->buildInsertColumns($data);
+        $sql = " INSERT INTO prescriptions SET ";
+        $sql .= $query['set'];
+
+        $results = sqlInsert(
+            $sql,
+            $query['bind']
+        );
+
+        if ($results) {
+            $processingResult->addData(array(
+                'id' => $results,
+                'uuid' => UuidRegistry::uuidToString($data['uuid'])
+            ));
+        } else {
+            $processingResult->addInternalError("error processing SQL Insert");
+        }
+
+        return $processingResult;
+    }
+
+    public function delete($id)
+    {
+        QueryUtils::sqlStatementThrowException("DELETE FROM prescriptions WHERE id = ?", array($id));
+        return ['message' => 'record deleted'];
     }
 }

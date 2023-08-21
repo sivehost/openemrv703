@@ -25,6 +25,17 @@ class PrescriptionRestController
     }
 
     /**
+     * Process a HTTP POST request used to create a prescription record.
+     * @param $data - array of prescription fields.
+     * @return a 201/Created status code and the prescription identifier if successful.
+     */
+    public function post($data)
+    {
+        $processingResult = $this->prescriptionService->insert($data);
+        return RestControllerHelper::handleProcessingResult($processingResult, 201);
+    }
+
+    /**
      * Fetches a single prescription resource by id.
      * @param $uuid- The prescription uuid identifier in string format.
      */
@@ -46,5 +57,11 @@ class PrescriptionRestController
     {
         $processingResult = $this->prescriptionService->getAll($search);
         return RestControllerHelper::handleProcessingResult($processingResult, 200, true);
+    }
+
+    public function delete($id)
+    {
+        $serviceResult = $this->prescriptionService->delete($id);
+        return RestControllerHelper::responseHandler($serviceResult, null, 200);
     }
 }

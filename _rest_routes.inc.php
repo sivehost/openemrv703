@@ -140,6 +140,7 @@
  *              "user/practitioner.read": "Read practitioners the user has access to (api:oemr)",
  *              "user/practitioner.write": "Write practitioners the user has access to (api:oemr)",
  *              "user/prescription.read": "Read prescriptions the user has access to (api:oemr)",
+ *              "user/prescription.write": "Write prescriptions the user has access to (api:oemr)",
  *              "user/procedure.read": "Read procedures the user has access to (api:oemr)",
  *              "user/soap_note.read": "Read soap notes the user has access to (api:oemr)",
  *              "user/soap_note.write": "Write soap notes the user has access to (api:oemr)",
@@ -302,6 +303,7 @@ use OpenEMR\RestControllers\MessageRestController;
 use OpenEMR\RestControllers\PrescriptionRestController;
 use OpenEMR\RestControllers\ProcedureRestController;
 use OpenEMR\RestControllers\TransactionRestController;
+use OpenEMR\RestControllers\CodeTypesRestController;
 
 // Note some Http clients may not send auth as json so a function
 // is implemented to determine and parse encoding on auth route's.
@@ -7029,6 +7031,61 @@ RestConfig::$ROUTE_MAP = array(
     },
 
     /**
+     *  @OA\POST(
+     *      path="/api/prescription",
+     *      description="Creates a new prescription",
+     *      tags={"standard"},
+     *      @OA\Response(
+     *          response="200",
+     *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "POST /api/prescription" => function () {
+        RestConfig::authorization_check("patients", "med");
+        $data = (array) (json_decode(file_get_contents("php://input")));
+        $return = (new PrescriptionRestController())->post($data);
+        RestConfig::apiLog($return, $data);
+        return $return;
+    },
+
+    /**
+     *  @OA\Get(
+     *      path="/api/patient/{puuid}/prescription",
+     *      description="Retrieves a list of all prescriptions for the patient",
+     *      tags={"standard"},
+     *      @OA\Response(
+     *          response="200",
+     *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "GET /api/patient/:puuid/prescription" => function ($puuid) {
+        RestConfig::authorization_check("patients", "med");
+        $return = (new PrescriptionRestController())->getAll(['puuid' => $puuid]);
+        RestConfig::apiLog($return);
+        return $return;
+    },
+
+    /**
      *  @OA\Get(
      *      path="/api/prescription/{uuid}",
      *      description="Retrieves a prescription",
@@ -7062,7 +7119,43 @@ RestConfig::$ROUTE_MAP = array(
         $return = (new PrescriptionRestController())->getOne($uuid);
         RestConfig::apiLog($return);
         return $return;
-    }
+    },
+
+    /**
+     *  @OA\Delete(
+     *      path="/api/prescription/{id}",
+     *      description="Delete a prescription",
+     *      tags={"standard"},
+     *      @OA\Parameter(
+     *          name="id",
+     *          in="path",
+     *          description="The id for the prescription.",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "DELETE /api/prescription/:id" => function ($id) {
+        RestConfig::authorization_check("patients", "med");
+        $return = (new PrescriptionRestController())->delete($id);
+        RestConfig::apiLog($return);
+        return $return;
+    },
 );
 
 use OpenEMR\Common\Http\StatusCode;
