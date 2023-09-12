@@ -5,10 +5,14 @@
 // modified to use activeElement for general edit sjpadgett@gmail.com 06/18/2019
 //
 
+/**
+ * @deprecated See library/custom_template/custom_template.php insertComponentToEditor()
+ */
 function moveOptions_11(theSelFrom, theSelTo) {
-    document.getElementById(theSelFrom).style.color = "red";
+    document.getElementById(theSelFrom).classList.add('text-info');
     document.getElementById(theSelFrom).style.fontStyle = "italic";
-    var str = document.getElementById(theSelFrom).innerHTML;
+    // var str = document.getElementById(theSelFrom).innerHTML;
+    let str = componentMap.get(theSelFrom);
     if (window.frames[0].document.body.innerHTML == '<br />')
         window.frames[0].document.body.innerHTML = "";
     var patt = /\?\?/;
@@ -165,51 +169,41 @@ function supportDragAndDrop(thedata) {
     return finalEl;
 }
 
-function TemplateSentence(val) {
+async function TemplateSentence(val) {
     if (val) {
         document.getElementById('share').style.display = '';
     } else {
         document.getElementById('share').style.display = 'none';
     }
-    $.ajax({
-        type: "POST",
-        url: "ajax_code.php",
-        dataType: "html",
-        data: {
-            templateid: val
-        },
-        success: function (thedata) {
-            //alert(thedata)
-            document.getElementById('template_sentence').innerHTML = supportDragAndDrop(thedata);
-        },
-        error: function () {
-            //alert("fail");
-        }
+
+    const response = await fetch(`ajax_code.php?templateid=${val}&json=true`, {
+        method: "GET",
+        headers: {"Content-Type": "text/json"},
     });
-    return;
+
+    if (response.status === 200) {
+        const r = await response.json();
+        return r;
+    } else {
+        console.debug("Unable to complete request")
+    }
 }
 
-function delete_item(id) {
-    //alert(id);
+async function delete_item(id) {
     if (confirm("Do you really wants to delete this?")) {
-        $.ajax({
-            type: "POST",
-            url: "ajax_code.php",
-            dataType: "html",
-            data: {
+        const response = await fetch("ajax_code.php", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: new URLSearchParams({
                 templateid: document.getElementById('template').value,
                 item: id,
                 source: "delete_item"
-            },
-            success: function (thedata) {
-                //alert(thedata)
-                document.getElementById('template_sentence').innerHTML = supportDragAndDrop(thedata);
-            },
-            error: function () {
-                //alert("fail");
-            }
+            })
         });
-        return;
+
+        return (response.status === 204) ? true : false;
     }
     return false;
 }
@@ -221,32 +215,39 @@ function add_item() {
 
 function cancel_item(id) {
     if (document.getElementById('new_item'))
-        document.getElementById('new_item').style.display = 'none';
+        document.getElementById('new_item').classList.toggle('d-none');
     if (document.getElementById('update_item' + id))
-        document.getElementById('update_item' + id).style.display = 'none';
+        document.getElementById('update_item' + id).classList.toggle('d-none');
 }
 
-function save_item() {
-    $.ajax({
-        type: "POST",
-        url: "ajax_code.php",
-        dataType: "html",
-        data: {
-            item: document.getElementById('item').value,
+/**
+ * Saves a new component to the database
+ *
+ * @todo RD - This function references the DOM when it should only reference parameters.
+ * @returns {Promise<string>} The ID of the new item, false if there was a failure
+ */
+async function save_item() {
+    const response = await fetch('ajax_code.php', {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Accepts": "text/plain"
+        },
+        body: new URLSearchParams({
             templateid: document.getElementById('template').value,
+            short: document.getElementById("shortName").value,
+            item: document.getElementById("componentText").value,
             source: "add_item"
-
-        },
-        success: function (thedata) {
-            //alert(thedata)
-            document.getElementById('template_sentence').innerHTML = supportDragAndDrop(thedata);
-            cancel_item('');
-        },
-        error: function () {
-            //alert("fail");
-        }
+        })
     });
-    return;
+
+    if (response.status === 201) {
+        const r = await response.text();
+        return r;
+    } else {
+        console.debug("Unable to complete request");
+    }
+    return false;
 }
 
 function update_item_div(id) {
@@ -254,26 +255,27 @@ function update_item_div(id) {
     document.getElementById('update_item_txt' + id).focus();
 }
 
-function update_item(id) {
-    $.ajax({
-        type: "POST",
-        url: "ajax_code.php",
-        dataType: "html",
-        data: {
+/**
+ * Update an item in the database based on given id
+ *
+ * @todo This function references the DOM when it should only reference parameters.
+ * @param {*} id
+ * @returns boolean
+ */
+async function update_item(id) {
+    const response = await fetch("ajax_code.php", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: new URLSearchParams({
             item: id,
             templateid: document.getElementById('template').value,
-            content: document.getElementById('update_item_txt' + id).value,
+            short: document.getElementById("shortName").value,
+            content: document.getElementById("componentText").value,
             source: "update_item"
-
-        },
-        success: function (thedata) {
-            //alert(thedata)
-            document.getElementById('template_sentence').innerHTML = supportDragAndDrop(thedata);
-            cancel_item(id);
-        },
-        error: function () {
-            //alert("fail");
-        }
+        })
     });
-    return;
+
+    return (response.status == 204) ? true : false;
 }

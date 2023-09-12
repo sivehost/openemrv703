@@ -282,3 +282,13 @@ INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_re
 #IfMissingColumn onsite_documents template_data
 ALTER TABLE `onsite_documents` ADD `template_data` LONGTEXT;
 #EndIf
+
+#IfTable customlists
+ALTER TABLE customlists MODIFY COLUMN cl_list_item_short varchar(100);
+ALTER TABLE customlists MODIFY COLUMN cl_list_item_long LONGTEXT;
+-- Update the short list items to be the first 35 characters of the long list items
+UPDATE customlists
+SET cl_list_item_short = CONCAT(RTRIM(LEFT(cl_list_item_long, 35)), "...")
+WHERE cl_list_type = 4
+    AND (cl_list_item_short IS NULL OR cl_list_item_short = "")
+#EndIf
