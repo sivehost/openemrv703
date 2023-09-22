@@ -1765,6 +1765,7 @@ CREATE TABLE `facility` (
   `info` TEXT,
   `weno_id` VARCHAR(10) DEFAULT NULL,
   `inactive` tinyint(1) NOT NULL DEFAULT '0',
+  `organization_type` VARCHAR(50) NOT NULL DEFAULT 'prov' COMMENT 'Organization type as defined by HL7 Value Set: OrganizationType',
   UNIQUE KEY `uuid` (`uuid`),
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4;
@@ -13344,3 +13345,17 @@ CREATE TABLE recent_patients (
     patients TEXT,
     PRIMARY KEY (user_id)
 ) ENGINE=InnoDB;
+
+INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('lists', 'organization-type', 'Organization type');
+INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('organization-type', 'prov', 'Healthcare Provider', 0);
+INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('organization-type', 'dept', 'Hospital Department', 1);
+INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('organization-type', 'team', 'Organizational team', 2);
+INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('organization-type', 'govt', 'Government', 3);
+INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('organization-type', 'ins', 'Insurance Company', 4);
+INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('organization-type', 'pay', 'Payer', 5);
+INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('organization-type', 'edu', 'Educational Institute', 6);
+INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('organization-type', 'reli', 'Religious Institution', 7);
+INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('organization-type', 'crs', 'Clinical Research Sponsor', 8);
+INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('organization-type', 'cg', 'Community Group', 9);
+INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('organization-type', 'bus', 'Non-Healthcare Business or Corporation', 10);
+INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('organization-type', 'other', 'Other', 11);
