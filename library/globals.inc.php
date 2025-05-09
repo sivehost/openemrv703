@@ -1792,6 +1792,7 @@ $GLOBALS_METADATA = array(
                 '2' => xl('Last name, first name'),
                 '3' => xl('Last name, first name (title)'),
                 '4' => xl('Last name, first name (title: comments)'),
+                '5' => xl('Last name, first name, address (title: comments)')
             ),
             '2',                               // default
             xl('This determines how appointments display on the calendar.')
@@ -2827,7 +2828,12 @@ $GLOBALS_METADATA = array(
             '1',                              // default
             xl('Enable logging of ordering activities.') . ' (' . xl('Note that Audit Logging needs to be enabled above') . ')'
         ),
-
+        'audit_events_lab-results' => array(
+            xl('Audit Logging Lab Results'),
+            'bool',                           // data type
+            '1',                              // default
+            xl('Enable logging of lab result activities.') . ' (' . xl('Note that Audit Logging needs to be enabled above') . ')'
+        ),
         'audit_events_security-administration' => array(
             xl('Audit Logging Security Administration'),
             'bool',                           // data type
@@ -2862,7 +2868,12 @@ $GLOBALS_METADATA = array(
             '0',                              // default
             xl('Enable logging of CDR Engine Queries.') . ' (' . xl('Note that Audit Logging needs to be enabled above') . ')'
         ),
-
+        'audit_events_http-request' => array(
+            xl('Audit Logging user page history.'),
+            'bool',                           // data type
+            '1',                              // turn it on by default for better traceability in the logs
+            xl('Enable logging of HTTP page requests as the user utilizes the web interface.') . ' (' . xl('Note that Audit Logging needs to be enabled above') . ')'
+        ),
         'gbl_force_log_breakglass' => array(
             xl('Audit all Emergency User Queries'),
             'bool',                           // data type
@@ -4306,7 +4317,7 @@ $GLOBALS_METADATA = array(
         ],
 
         'set_service_facility_encounter' => array(
-            xl('Set Service Facility in Encounter'),
+            xl('Set Service Facility in Encounter To First Care Team Facility'),
             'bool',                           // data type
             '0',                              // default = false
             xl('This feature will allow the default service facility to be selected by the care team facility in Choices.')
@@ -4379,7 +4390,7 @@ $GLOBALS_METADATA = array(
             xl('Show Encounter Type option on Encounters'),
             getDefaultRenderListOptions(),
             RenderFormFieldHelper::SHOW_ALL,
-            xl('Show Encounter Class option on Encounters'),
+            xl('Show Encounter Type option on Encounters'),
         ],
 
         'enc_enable_ordering_provider' => [
