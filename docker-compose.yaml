@@ -1,0 +1,41 @@
+# docker-compose.yaml
+version: "3.8"
+
+services:
+  openemr:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: openemr-${DOMAIN}
+    environment:
+      DOMAIN: ${DOMAIN}
+      OPENEMR_DB_USER: ${OPENEMR_DB_USER}
+      OPENEMR_DB_PASS: ${OPENEMR_DB_PASS}
+      OPENEMR_DB_NAME: ${OPENEMR_DB_NAME}
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+    depends_on:
+      - mariadb
+    networks:
+      - internal
+    ports:
+      - "3000:80"
+
+  mariadb:
+    image: mariadb:10.11
+    container_name: db-${DOMAIN}
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${OPENEMR_DB_NAME}
+      MYSQL_USER: ${OPENEMR_DB_USER}
+      MYSQL_PASSWORD: ${OPENEMR_DB_PASS}
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    networks:
+      - internal
+
+networks:
+  internal:
+    driver: bridge
+
+volumes:
+  mariadb_data:
