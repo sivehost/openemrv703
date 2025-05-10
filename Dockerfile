@@ -104,7 +104,7 @@ RUN service mysql status && \
     mysql -u root ${openemr_db_name} < /tmp/openemrdb.sql || echo "Skipping DB import"
 
 # Expose ports for Apache
-EXPOSE 3000
+EXPOSE 80
 
 # Start Apache in foreground
 CMD ["apache2ctl", "-D", "FOREGROUND"]
