@@ -85,8 +85,11 @@ RUN a2enmod rewrite ssl && \
     echo "ServerName ${domain}" >> /etc/apache2/apache2.conf
 
 
-# Add custom DirectoryIndex config
-RUN echo 'DirectoryIndex index.php index.html' > /etc/apache2/conf-available/php-index.conf && \
+# Enable Apache modules and configure vhost
+RUN a2enmod rewrite ssl && \
+    a2ensite ${domain}.conf && \
+    a2dissite 000-default.conf && \
+    echo 'DirectoryIndex index.php index.html' > /etc/apache2/conf-available/php-index.conf && \
     a2enconf php-index
 
     
