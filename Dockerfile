@@ -99,3 +99,5 @@ EXPOSE 80 443
 
 # Start Apache in foreground
 CMD ["apachectl", "-D", "FOREGROUND"]
+CMD ["apache2ctl", "-D", "FOREGROUND"]
+
