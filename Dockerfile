@@ -24,7 +24,7 @@ RUN apt update && apt upgrade -y && apt install -y \
 RUN mkdir -p ${web_root}
 
 # Clone OpenEMR source code
-RUN git clone --depth 1 --branch ${openemr_version} https://github.com/sivehost/openemrv703.git ${web_root}
+RUN git clone --depth 1 --branch ${openemr_version} https://github.com/sivehost/openemrv703.git /var/www/apps2.frappe.africa
 
 # Set working directory
 WORKDIR ${web_root}
