@@ -83,6 +83,12 @@ RUN a2enmod rewrite ssl && \
 </VirtualHost>\n" > /etc/apache2/sites-available/${domain}.conf && \
     a2ensite ${domain} && \
     echo "ServerName ${domain}" >> /etc/apache2/apache2.conf
+
+
+# Add custom DirectoryIndex config
+RUN echo 'DirectoryIndex index.php index.html' > /etc/apache2/conf-available/php-index.conf && \
+    a2enconf php-index
+
     
 
 # Optional: MariaDB setup — assumes external MariaDB is used in production
