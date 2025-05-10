@@ -92,7 +92,9 @@ RUN a2enmod rewrite ssl && \
     echo 'DirectoryIndex index.php index.html' > /etc/apache2/conf-available/php-index.conf && \
     a2enconf php-index
 
-    
+RUN apt-get update && \
+    apt-get install -y mariadb-server && \
+    service mysql start    
 
 # Optional: MariaDB setup — assumes external MariaDB is used in production
 # Can be removed if using Coolify's managed MariaDB or separate container
