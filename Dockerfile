@@ -49,7 +49,7 @@ RUN mkdir -p ${web_root}/sites/default && \
     \$db_encoding    = 'utf8mb4';\n\n\
     \$sqlconf = array();\n\
     global \$sqlconf;\n\
-    \$sqlconf[\"host\"] = '${domain}-db';\n\
+    \$sqlconf[\"host\"] = 'db-${domain}';\n\
     \$sqlconf[\"port\"] = \$port;\n\
     \$sqlconf[\"login\"] = \$login;\n\
     \$sqlconf[\"pass\"] = \$pass;\n\
