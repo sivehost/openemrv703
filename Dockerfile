@@ -32,6 +32,39 @@ RUN composer install --no-dev && \
     npm install && \
     npm run build
 
+# Inject OpenEMR admin config with ENV vars
+RUN mkdir -p ${web_root}/sites/default && \
+    echo "<?php\n\
+    //  OpenEMR\n\
+    //  MySQL Config\n\n\
+    global \$disable_utf8_flag;\n\
+    \$disable_utf8_flag = false;\n\n\
+    \$host   = 'localhost';\n\
+    \$port   = '3306';\n\
+    \$login  = '${openemr_db_user}';\n\
+    \$pass   = '${openemr_db_pass}';\n\
+    \$dbase  = '${openemr_db_name}';\n\
+    \$db_encoding    = 'utf8mb4';\n\n\
+    \$sqlconf = array();\n\
+    global \$sqlconf;\n\
+    \$sqlconf[\"host\"] = \$host;\n\
+    \$sqlconf[\"port\"] = \$port;\n\
+    \$sqlconf[\"login\"] = \$login;\n\
+    \$sqlconf[\"pass\"] = \$pass;\n\
+    \$sqlconf[\"dbase\"] = \$dbase;\n\
+    \$sqlconf[\"db_encoding\"] = \$db_encoding;\n\n\
+    //////////////////////////\n\
+    //////////////////////////\n\
+    //////////////////////////\n\
+    //////DO NOT TOUCH THIS///\n\
+    \$config = 1; /////////////\n\
+    //////////////////////////\n\
+    //////////////////////////\n\
+    //////////////////////////\n\
+    ?>" > ${web_root}/sites/default/sqlconf.php && \
+    chown www-data:www-data ${web_root}/sites/default/sqlconf.php
+
+
 # Set proper ownership
 RUN chown -R www-data:www-data ${web_root}
 
