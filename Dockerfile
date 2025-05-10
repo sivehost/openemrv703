@@ -37,17 +37,18 @@ RUN chown -R www-data:www-data ${web_root}
 
 # Enable Apache modules and virtual host
 RUN a2enmod rewrite ssl && \
-    echo "<VirtualHost *:80>
-    ServerName ${domain}
-    DocumentRoot ${web_root}
-    <Directory ${web_root}>
-        Options FollowSymLinks
-        AllowOverride All
-        Require all granted
-    </Directory>
-</VirtualHost>" > /etc/apache2/sites-available/${domain}.conf && \
+    printf "<VirtualHost *:80>\n\
+    ServerName ${domain}\n\
+    DocumentRoot ${web_root}\n\
+    <Directory ${web_root}>\n\
+        Options FollowSymLinks\n\
+        AllowOverride All\n\
+        Require all granted\n\
+    </Directory>\n\
+</VirtualHost>\n" > /etc/apache2/sites-available/${domain}.conf && \
     a2ensite ${domain} && \
     echo "ServerName ${domain}" >> /etc/apache2/apache2.conf
+    
 
 # Optional: MariaDB setup — assumes external MariaDB is used in production
 # Can be removed if using Coolify's managed MariaDB or separate container
