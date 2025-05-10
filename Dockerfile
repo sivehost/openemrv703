@@ -92,23 +92,20 @@ RUN a2enmod rewrite ssl && \
     echo 'DirectoryIndex index.php index.html' > /etc/apache2/conf-available/php-index.conf && \
     a2enconf php-index
 
-RUN apt-get update && \
-    apt-get install -y mariadb-server && \
-    service mysql start    
+RUN service mysql start
 
 # Optional: MariaDB setup — assumes external MariaDB is used in production
 # Can be removed if using Coolify's managed MariaDB or separate container
 # NOTE: service mysql is not persistent in Dockerfile RUN steps
 COPY sql/openemrdb.sql /tmp/openemrdb.sql
-RUN service mysql start && \
+RUN service mysql status && \
     mysql -e "SET GLOBAL sql_mode = '';" && \
     mysql -u root -e "CREATE DATABASE IF NOT EXISTS ${openemr_db_name};" && \
     mysql -u root ${openemr_db_name} < /tmp/openemrdb.sql || echo "Skipping DB import"
 
 # Expose ports for Apache
-EXPOSE 80 443
+EXPOSE 3000
 
 # Start Apache in foreground
-CMD ["apachectl", "-D", "FOREGROUND"]
 CMD ["apache2ctl", "-D", "FOREGROUND"]
 
