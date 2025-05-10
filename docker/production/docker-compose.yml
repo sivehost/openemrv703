@@ -19,8 +19,8 @@ services:
     restart: always
     image: openemr/openemr:7.0.3
     ports:
-    - 3000:80
-    - 3000:443    
+    - 3001:80
+    - 3001:443    
     volumes:
     - logvolume01:/var/log
     - sitevolume:/var/www/localhost/htdocs/openemr/sites
