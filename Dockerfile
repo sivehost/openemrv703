@@ -5,11 +5,13 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Arguments injected via Coolify environment variables
 ARG openemr_version
 ARG domain
-ARG web_root=/var/www/${domain}
 ARG mariadb_root_password
 ARG openemr_db_user
 ARG openemr_db_pass
 ARG openemr_db_name
+
+ENV web_root=/var/www/${domain}
+
 
 # Install required packages
 RUN apt update && apt upgrade -y && apt install -y \
