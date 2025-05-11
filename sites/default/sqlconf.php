@@ -7,9 +7,9 @@ $disable_utf8_flag = false;
 
 $host   = 'localhost';
 $port   = '3306';
-$login  = 'openemr';
-$pass   = 'openemr';
-$dbase  = 'openemr';
+$login  = 'mpe15vf4';
+$pass   = '8K18sEqk_vCo2jiAShxSvX2D';
+$dbase  = 'apps2_frappe_africa';
 $db_encoding = 'utf8mb4';
 
 $sqlconf = array();
@@ -25,7 +25,7 @@ $sqlconf["db_encoding"] = $db_encoding;
 //////////////////////////
 //////////////////////////
 //////DO NOT TOUCH THIS///
-$config = 0; /////////////
+$config = 1; /////////////
 //////////////////////////
 //////////////////////////
 //////////////////////////
