@@ -10,14 +10,21 @@ services:
       MYSQL_PASSWORD: '${MYSQL_PASSWORD}'
     volumes:
       - 'db_data:/var/lib/mysql'
+
   openemr:
-    image: 'openemr/openemr:7.0.3'
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        GIT_REPO: "https://github.com/sivehost/openemrv703.git"
+        GIT_BRANCH: "main"  # or 'master' or whichever branch
+        DOMAIN: "${DOMAIN}"
     restart: always
     depends_on:
       - db
     ports:
-      - '8080'
-      - '8443'
+      - '80'
+      - '443'
     environment:
       - 'OE_USER=${OE_USER}'
       - 'OE_PASS=${OE_PASS}'
@@ -25,10 +32,11 @@ services:
       - MYSQL_HOST=db
       - 'MYSQL_ROOT_PASS=${MYSQL_ROOT_PASSWORD}'
     volumes:
-      - 'openemr_data:/var/www/localhost/htdocs/openemr'
+      - 'openemr_data:/var/www/apps2.frappe.africa'
       - './ssl:/etc/ssl/certs:ro'
     extra_hosts:
       - '${DOMAIN}:127.0.0.1'
+
 volumes:
   db_data: null
   openemr_data: null
