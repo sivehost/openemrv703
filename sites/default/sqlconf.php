@@ -5,7 +5,7 @@
 global $disable_utf8_flag;
 $disable_utf8_flag = false;
 
-$host   = 'localhost';
+$host   = 'db';
 $port   = '3306';
 $login  = 'openemr';
 $pass   = 'openemr';
