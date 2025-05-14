@@ -26,7 +26,7 @@ RUN composer install --no-dev && \
 
 # Apache config
 RUN a2enmod rewrite ssl && \
-    echo "ServerName apps2.fappe.africa" >> /etc/apache2/apache2.conf
+    echo "ServerName oe.bcoza.co.za" >> /etc/apache2/apache2.conf
 
 # Add startup script
 COPY docker-entrypoint.sh /usr/local/bin/startup.sh
